@@ -17,10 +17,7 @@ async def start_interview():
      questions = [
         "What is your name?",
         "What is your age?",
-        "What is your favorite programming language?",
-        "What is your experience with Python?",
-        "What is your experience with FastAPI?",
-        "What is your experience with REST APIs?",
+        "What is your favorite programming language?"
      ]
      session = create_session()
      session.questions = questions
