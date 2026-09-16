@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get("/start")
 async def start_interview():
 
      questions = [
@@ -28,7 +28,7 @@ async def start_interview():
      return{
           "introText": "Welcome to the interview! Please answer the following questions.",
           "sessionId": session.session_id,
-          "questions": questions[0]
+          "firstQuestion": questions[0]
      }
 
 

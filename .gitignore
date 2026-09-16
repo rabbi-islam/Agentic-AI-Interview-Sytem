@@ -1,4 +1,22 @@
-/env
+# Python
 __pycache__/
-*.pyc__pycache__/
 *.py[cod]
+backend/env/
+backend/venv/
+backend/.venv/
+
+# Environment
+.env
+.env.*
+
+# Node / Frontend
+agentic-ai-frontedn/node_modules/
+agentic-ai-frontedn/dist/
+agentic-ai-frontedn/build/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
