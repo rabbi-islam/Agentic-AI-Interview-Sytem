@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc__pycache__/
 *.py[cod]
+# Environment variables
+.env
+.env.*

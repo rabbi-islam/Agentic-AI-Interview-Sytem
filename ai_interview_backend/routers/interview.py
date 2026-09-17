@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
 from models.interview import InterviewStatusEnum
 from request_model.AnswerRequest import AnswerRequest
 from response_model.AnswerResponse import AnswerResponse
+from services.ai_service import generate_questions_intro, generate_report
 from services.interview_service import create_session, get_session, save_answer
+from util.file_util import validate_file, extract_text
 
 router = APIRouter(
     prefix="/interview",
@@ -11,21 +13,40 @@ router = APIRouter(
 )
 
 
-@router.get("/start")
-async def start_interview():
+@router.post("/generate_question")
+async def generate_questions(
+     job_title: str = Form(...),
+     job_description: str = Form(...),
+     resume: UploadFile = File(...)
+):
+     #validate resume file
+     await validate_file(resume)
 
-     questions = [
-        "What is your name?",
-        "What is your age?",
-        "What is your favorite programming language?"
-     ]
+     #extract text from resume
+     resume_text = await extract_text(resume)
+
+     #generate questions based on job title, job description and resume text
+     resp = await generate_questions_intro(job_title = job_title, job_description = job_description, resume_text = resume_text)
+
      session = create_session()
-     session.questions = questions
+     session.questions = resp.get("questions")
+     session.introText = resp.get("introText")
+
+     #print("Result>>>>>:", resp)
+
+     return{"sessionId": session.session_id,}
+
+@router.get("/start/{session_id}")
+async def start_interview(session_id: str):
+
+     #check if session exists
+     session = get_session(session_id)
+     if not session or session.status == InterviewStatusEnum:
+          raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Interview Session not found or already completed")
 
      return{
-          "introText": "Welcome to the interview! Please answer the following questions.",
-          "sessionId": session.session_id,
-          "firstQuestion": questions[0]
+          "introText": session.introText,
+          "firstQuestion": session.questions[0]
      }
 
 
@@ -74,7 +95,6 @@ async def report(session_id: str):
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Interview Session Not Found")
     
-    return {
-          "result":  "you Interviewr report" 
+    resp = await generate_report(session.answers)
 
-     }
+    return {"Result:": resp  }
